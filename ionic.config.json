@@ -1,0 +1,7 @@
+{
+  "name": "chuckStorage",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
