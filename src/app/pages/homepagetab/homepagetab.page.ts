@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { DataService } from "../../services/data.service";
 import { HttpClient } from '@angular/common/http';
+import { DatabaseService } from '../../services/database.service';
+import {Joke} from "../../interfaces/joke";
+import {Preferences} from "@capacitor/preferences";
+
 @Component({
   selector: 'app-homepagetab',
   templateUrl: './homepagetab.page.html',
@@ -8,39 +11,51 @@ import { HttpClient } from '@angular/common/http';
 })
 export class HomepagetabPage implements OnInit {
 
+
   listData: any[] = [];
 
-  constructor(private dataService: DataService, private http: HttpClient) {
+  constructor(private http: HttpClient, private storage: DatabaseService) {
     this.loadData();
   }
 
+  /**
+   * object joke passed and added to the stringyfied list of table values
+   *
+   * @param joke Object in the interface of Joke.
+   */
+  addJokeToFavorite(joke: Joke){
+    console.log(joke);
+    this.storage.getData('jokes').then(res => {
+      if(res === null) {
+        this.storage.setData('jokes', joke);
+        return;
+      }
+      let jokesList = JSON.parse(res.value);
+      let jokeExists = jokesList.find((j: { id: string; }) => j.id === joke.id);
+      if (!jokeExists) {
+        jokesList.unshift(joke);
+        this.storage.setData('jokes', jokesList);
+      }
+    })
+  }
+
+
   async loadData(){
-    this.dataService.getData().subscribe(res =>{
-      this.listData = res;
-    });
+      return this.listData;
   }
 
   async addData(){
     this.http.get('https://api.chucknorris.io/jokes/random').subscribe(data => {
       this.listData.unshift(data);
+      //console.log(this.listData);
     });
   }
 
-  async removeItem(index: number){
-    this.dataService.removeItem(index);
-    this.listData.splice(index,1);
+  async removeItem(i: number) {
+    this.listData.splice(i, 1);
   }
 
-  getRandomColor() {
-    let letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
 
   ngOnInit() {
   }
-
 }
