@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {DatabaseService} from "../../services/database.service";
 import {Joke} from "../../interfaces/joke"
-//import {jokes} from "../homepagetab/homepagetab.page"
+
+import { IonicModule } from '@ionic/angular';
+import { IonSegment } from '@ionic/angular';
 
 @Component({
   selector: 'app-favoritestab',
@@ -13,17 +15,21 @@ export class FavoritestabPage implements OnInit {
   constructor(public storage: DatabaseService) {
 
   }
+  reloadFavorites() {
+    this.storage.getData('favjokes').then((data) => {
+      this.favjokes = data;
+    });
+  }
+
   async removeJokeFromFavorites(joke: Joke){
-    let jokesList = await this.storage.getData('jokes');
+    let jokesList = await this.storage.getData('favjokes');
     jokesList = jokesList.filter((j: { id: string; }) => j.id !== joke.id);
-    await this.storage.setData('jokes',jokesList);
+    await this.storage.setData('favjokes',jokesList);
     this.favjokes = jokesList;
   }
 
   ngOnInit() {
-    this.storage.getData("favjokes").then(data => {
-      this.favjokes = data;
-    });
+    this.reloadFavorites()
   }
 
 }
