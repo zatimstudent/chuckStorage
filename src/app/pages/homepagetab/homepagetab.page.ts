@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DatabaseService } from '../../services/database.service';
 import {Joke} from "../../interfaces/joke";
+import {firstValueFrom} from "rxjs";
 import {Preferences} from "@capacitor/preferences";
 
 @Component({
@@ -11,11 +12,9 @@ import {Preferences} from "@capacitor/preferences";
 })
 export class HomepagetabPage implements OnInit {
 
-
-  listData: any[] = [];
+  jokes: any[] | undefined;
 
   constructor(private http: HttpClient, private storage: DatabaseService) {
-    this.loadData();
   }
 
   /**
@@ -23,39 +22,58 @@ export class HomepagetabPage implements OnInit {
    *
    * @param joke Object in the interface of Joke.
    */
-  addJokeToFavorite(joke: Joke){
+  async addJokeToFavorite(joke: Joke){
     console.log(joke);
-    this.storage.getData('jokes').then(res => {
+    this.storage.getData('favjokes').then(res => {
       if(res === null) {
-        this.storage.setData('jokes', joke);
-        return;
-      }
-      let jokesList = JSON.parse(res.value);
+        this.storage.setData('favjokes', [joke]);
+        return;}
+
+      let jokesList = res;
       let jokeExists = jokesList.find((j: { id: string; }) => j.id === joke.id);
       if (!jokeExists) {
         jokesList.unshift(joke);
-        this.storage.setData('jokes', jokesList);
+        this.storage.setData('favjokes', jokesList);
       }
     })
   }
 
-
-  async loadData(){
-      return this.listData;
+  async addJoke(){
+    let joke = await this.apiGet()
+    console.log(joke)
+    let storedJokes = await this.storage.getData('jokes');
+    //console.log(joke);
+    //console.log();
+    console.log(storedJokes);
+    if(typeof storedJokes === 'string') storedJokes = JSON.parse(storedJokes);
+    if(!storedJokes || !Array.isArray(storedJokes)) storedJokes = []
+    storedJokes.push(joke);
+    this.jokes = storedJokes;
+    //console.log(storedJokes)
+    await Preferences.set({ key: 'jokes', value: JSON.stringify(storedJokes) });
   }
 
-  async addData(){
-    this.http.get('https://api.chucknorris.io/jokes/random').subscribe(data => {
-      this.listData.unshift(data);
-      //console.log(this.listData);
-    });
+  async removeJoke(joke: Joke){
+    this.storage.getData('jokes').then(res => {
+      let jokesList = JSON.parse(res.value);
+      jokesList = jokesList.filter((j: { id: string; }) => j.id !== joke.id);
+      this.storage.setData('jokes',jokesList);
+    })
   }
 
-  async removeItem(i: number) {
-    this.listData.splice(i, 1);
+  async apiGet(){
+    const url = 'https://api.chucknorris.io/jokes/random';
+    /*return new Promise(resolve => {
+      this.http.get(url).subscribe(data => {
+        resolve(data);
+      });
+    })*/
+
+    return firstValueFrom(this.http.get(url));
   }
-
-
   ngOnInit() {
+    this.storage.getData("jokes").then(data => {
+      this.jokes = data;
+    });
   }
 }

@@ -18,13 +18,12 @@ export class DatabaseService {
    * @param data could be any format, will be stringyfied.
    */
   async setData(key: string, data: any) {
-    await Preferences.set({key, value: JSON.stringify(data),
+    await Preferences.set({key: key, value: JSON.stringify(data),
     });
   }
   async getData(key: string) {
-    const {value} = await Preferences.get({key});
-    console.log(value);
-    return JSON.parse(<string>value);
+    const jokes = await Preferences.get({key: key});
+    return JSON.parse(<string>jokes.value);
   }
 
   async delete(key:string){

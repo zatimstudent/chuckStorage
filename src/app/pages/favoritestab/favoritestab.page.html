@@ -6,7 +6,7 @@
 
 <ion-content>
   <ion-list>
-    <ion-item-sliding *ngFor="let joke of jokes; let i = index;">
+    <ion-item-sliding *ngFor="let joke of favjokes; let i = index;">
       <ion-item>
         <ion-card>
           <ion-card-content [ngClass]="{'light-blue-bg': i % 2 !== 0, 'padding': true}">

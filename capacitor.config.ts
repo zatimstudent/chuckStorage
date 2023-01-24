@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
+  appId: 'io.chuckfact.jokes',
   appName: 'chuckStorage',
   webDir: 'www',
   bundledWebRuntime: false

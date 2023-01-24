@@ -9,21 +9,22 @@ import {Joke} from "../../interfaces/joke"
   styleUrls: ['./favoritestab.page.scss'],
 })
 export class FavoritestabPage implements OnInit {
-  jokes: Joke[] = [];
+  favjokes: Joke[] = [];
   constructor(public storage: DatabaseService) {
 
   }
-  removeJokeFromFavorites(joke: Joke){
-    this.storage.getData('jokes').then(res => {
+  async removeJokeFromFavorites(joke: Joke){
+    this.storage.getData('favjokes').then(res => {
       let jokesList = JSON.parse(res.value);
       jokesList = jokesList.filter((j: { id: string; }) => j.id !== joke.id);
-      this.storage.setData('jokes',jokesList);
+      this.storage.setData('favjokes',jokesList);
+      this.favjokes = jokesList;
     })
   }
 
   ngOnInit() {
-    this.storage.getData("jokes").then(data => {
-      this.jokes = data;
+    this.storage.getData("favjokes").then(data => {
+      this.favjokes = data;
     });
   }
 
