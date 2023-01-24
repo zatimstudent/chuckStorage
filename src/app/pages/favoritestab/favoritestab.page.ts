@@ -14,12 +14,10 @@ export class FavoritestabPage implements OnInit {
 
   }
   async removeJokeFromFavorites(joke: Joke){
-    this.storage.getData('favjokes').then(res => {
-      let jokesList = JSON.parse(res.value);
-      jokesList = jokesList.filter((j: { id: string; }) => j.id !== joke.id);
-      this.storage.setData('favjokes',jokesList);
-      this.favjokes = jokesList;
-    })
+    let jokesList = await this.storage.getData('jokes');
+    jokesList = jokesList.filter((j: { id: string; }) => j.id !== joke.id);
+    await this.storage.setData('jokes',jokesList);
+    this.favjokes = jokesList;
   }
 
   ngOnInit() {

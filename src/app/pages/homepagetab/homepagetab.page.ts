@@ -47,18 +47,25 @@ export class HomepagetabPage implements OnInit {
     console.log(storedJokes);
     if(typeof storedJokes === 'string') storedJokes = JSON.parse(storedJokes);
     if(!storedJokes || !Array.isArray(storedJokes)) storedJokes = []
-    storedJokes.push(joke);
+    storedJokes.unshift(joke);
     this.jokes = storedJokes;
     //console.log(storedJokes)
     await Preferences.set({ key: 'jokes', value: JSON.stringify(storedJokes) });
   }
 
-  async removeJoke(joke: Joke){
+  /*async removeJoke(joke: Joke){
     this.storage.getData('jokes').then(res => {
       let jokesList = JSON.parse(res.value);
       jokesList = jokesList.filter((j: { id: string; }) => j.id !== joke.id);
       this.storage.setData('jokes',jokesList);
     })
+  }*/
+
+  async removeJoke(joke: Joke){
+      let jokesList = await this.storage.getData('jokes');
+      jokesList = jokesList.filter((j: { id: string; }) => j.id !== joke.id);
+      await this.storage.setData('jokes',jokesList);
+      this.jokes = jokesList;
   }
 
   async apiGet(){
